@@ -1,36 +1,7 @@
 import { Box, Button, Text, TextField, Image } from "@skynexui/components";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import appConfig from "../config.json";
-
-function GlobalStyle() {
-  return (
-    <style global jsx>{`
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        list-style: none;
-      }
-      body {
-        font-family: "Open Sans", sans-serif;
-      }
-      /* App fit Height */
-      html,
-      body,
-      #__next {
-        min-height: 100vh;
-        display: flex;
-        flex: 1;
-      }
-      #__next {
-        flex: 1;
-      }
-      #__next > * {
-        flex: 1;
-      }
-      /* ./App fit Height */
-    `}</style>
-  );
-}
 
 function Title(props) {
   const Tag = props.tag || h1;
@@ -47,26 +18,27 @@ function Title(props) {
     </>
   );
 }
-//Componente React
-/*function HomePage() {
-  //JSX
-  return (
-    <div>
-      <GlobalStyle />
-      <Title tag="h2">Boas vindas de volta!</Title>
-      <h2>Aluracord - Alura Hunters</h2>
-    </div>
-  );
-}
-
-export default HomePage;*/
 
 function HomePage() {
-  const username = "peas";
+  const [username, setUsername] = useState("persset");
+  const [userLocation, setUserLocation] = useState("");
+  const baseURL = `https://api.github.com/users/${username}`;
+  const router = useRouter();
+
+  function addDefaultImage(event) {
+    event.target.src = "https://images.alphacoders.com/969/969321.jpg";
+  }
+
+  useEffect(() => {
+    fetch(baseURL)
+      .then((response) => response.json())
+      .then((data) => {
+        setUserLocation(data.location);
+      });
+  });
 
   return (
     <>
-      <GlobalStyle />
       <Box
         styleSheet={{
           display: "flex",
@@ -101,6 +73,10 @@ function HomePage() {
           {/* Formulário */}
           <Box
             as="form"
+            onSubmit={function (formEvent) {
+              formEvent.preventDefault();
+              router.push("/chat");
+            }}
             styleSheet={{
               display: "flex",
               flexDirection: "column",
@@ -132,7 +108,10 @@ function HomePage() {
                   backgroundColor: appConfig.theme.colors.neutrals[800],
                 },
               }}
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
             />
+
             <Button
               type="submit"
               label="Entrar"
@@ -168,8 +147,10 @@ function HomePage() {
                 borderRadius: "50%",
                 marginBottom: "16px",
               }}
+              onError={addDefaultImage}
               src={`https://github.com/${username}.png`}
             />
+
             <Text
               variant="body4"
               styleSheet={{
@@ -180,6 +161,18 @@ function HomePage() {
               }}
             >
               {username}
+            </Text>
+
+            <Text
+              variant="body4"
+              styleSheet={{
+                color: appConfig.theme.colors.neutrals[200],
+                backgroundColor: appConfig.theme.colors.neutrals[900],
+                padding: "3px 10px",
+                borderRadius: "1000px",
+              }}
+            >
+              {userLocation}
             </Text>
           </Box>
           {/* Photo Area */}
